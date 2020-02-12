@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
-
+﻿using System.IO;
+using System.Linq;
+using Castle.DynamicProxy;
+using PlayGround.CustomServiceCollections;
 namespace PlayGround
 {
     class Program
@@ -8,23 +9,27 @@ namespace PlayGround
         static void Main(string[] args)
         {
             //ScopesDemo.Run();
-
-            
+            CustomServiceCollectionDemo.Run();
         }
     }
 
-    public class AOPServiceCollection : ServiceCollection{
 
-        private List<object> _interceptors = new List<object>();
-        public ServiceCollection AddInterceptor<T>() where T: class{
-            this.AddSingleton<T>();            
-            return this;
+    public class MyLogger : IInterceptor
+    {
+        private readonly TextWriter _output;
+        public MyLogger(TextWriter output)
+        {
+            _output = output;
         }
+        public void Intercept(IInvocation invocation)
+        {
+            _output.Write("Calling method {0} with parameters {1}... ",
+            invocation.Method.Name,
+            string.Join(", ", invocation.Arguments.Select(a => (a ?? "").ToString()).ToArray()));
 
-        override
-    }
+            invocation.Proceed();
 
-    public class Logger<T>{
-
+            _output.WriteLine("Done: result was {0}.", invocation.ReturnValue);
+        }
     }
 }
