@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using Castle.DynamicProxy;
-
 namespace PlayGround.Interception
 {
     public class InterceptionDemo
@@ -11,11 +10,10 @@ namespace PlayGround.Interception
         {
             ICalculator calculator = new Calculator();
             var proxy = new ProxyGenerator().CreateInterfaceProxyWithTarget(calculator, new MyLogger(Console.Out));
+
             proxy.Divide(5, 5);
             proxy.Divide(5, 0);
         }
-
-
     }
 
     public class Calculator : ICalculator
@@ -25,6 +23,7 @@ namespace PlayGround.Interception
             return x / y;
         }
     }
+
     public class MyLogger : IInterceptor
     {
         private readonly TextWriter _output;
@@ -51,6 +50,8 @@ namespace PlayGround.Interception
             }
         }
     }
+
+    
 
     public interface ICalculator
     {

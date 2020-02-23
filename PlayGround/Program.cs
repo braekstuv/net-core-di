@@ -3,6 +3,8 @@ using System.Linq;
 using Castle.DynamicProxy;
 using PlayGround.CustomServiceCollections;
 using PlayGround.Interception;
+using PlayGround.InterceptionServiceCollections;
+using PlayGround.Scopes;
 
 namespace PlayGround
 {
@@ -12,7 +14,8 @@ namespace PlayGround
         {
             //ScopesDemo.Run();
             //CustomServiceCollectionDemo.Run();
-            InterceptionDemo.Run();
+            //InterceptionDemo.Run();
+             CustomServiceCollectionWithInterceptionDemo.Run();
         }
     }
 }

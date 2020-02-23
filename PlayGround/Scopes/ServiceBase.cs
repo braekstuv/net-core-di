@@ -2,7 +2,7 @@ using System;
 
 namespace PlayGround.Scopes
 {
-    public abstract class ServiceBase : IDisposable
+    public abstract class ServiceBase : IDisposable, IService
     {
         public Guid Id { get; } = Guid.NewGuid();
 
@@ -16,15 +16,32 @@ namespace PlayGround.Scopes
         }
     }
 
-    public class TransientService : ServiceBase
+    public class TransientService : ServiceBase, ITransientService
     {
     }
 
-    public class ScopedService : ServiceBase
+    public interface ITransientService : IService
     {
     }
 
-    public class SingletonService : ServiceBase
+    public class ScopedService : ServiceBase, IScopedService
     {
+    }
+
+    public interface IScopedService : IService
+    {
+    }
+
+    public class SingletonService : ServiceBase, ISingletonService
+    {
+    }
+
+    public interface ISingletonService: IService
+    {
+    }
+
+    public interface IService
+    {
+        void LogDescription();
     }
 }
