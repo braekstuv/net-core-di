@@ -10,6 +10,7 @@ namespace PlayGround.Interception
         {
             ICalculator calculator = new Calculator();
             var proxy = new ProxyGenerator().CreateInterfaceProxyWithTarget(calculator, new MyLogger(Console.Out));
+
             proxy.Divide(5, 5);
             proxy.Divide(5, 0);
         }
