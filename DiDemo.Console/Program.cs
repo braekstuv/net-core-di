@@ -5,7 +5,7 @@ using DiDemo.Common.Services;
 using DiDemo.Common.Services.DemoDependencies;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DiDemo.ConsoleApp
+namespace DiDemo.CaptiveDependenciesDemo.ConsoleApp
 {
     class Program
     {
@@ -19,13 +19,21 @@ namespace DiDemo.ConsoleApp
 
             //Underlying dependencies will be disposed.
             // serviceCollection.AddScoped<MyCoolService>()
-            // .AddScoped<MyOtherCoolService>();
+            //  .AddScoped<MyOtherCoolService>();
 
             serviceCollection.AddSingleton<SingletonDependency>()
-            .AddScoped<ScopedDependency>()
+            //.AddScoped<ScopedDependency>()
             .AddTransient<TransientDependency>();
 
+            //Line below will not throw an error
             using (var serviceProvider = serviceCollection.BuildServiceProvider())
+            //Line below will throw an error if there are captive dependencies
+            // using (var serviceProvider = serviceCollection.BuildServiceProvider(true))
+            //Line below will throw an error
+            // using (var serviceProvider = serviceCollection.BuildServiceProvider(new ServiceProviderOptions{
+            //     ValidateScopes = true, //throws error if captive dependencies detected
+            //     ValidateOnBuild = true //throws error if there are missing dependencies (open generics excluded)
+            // }))
             {
                 var task1 = RunScope(serviceProvider);
                 Thread.Sleep(10);
@@ -37,12 +45,6 @@ namespace DiDemo.ConsoleApp
                 await Task.WhenAll(tasks);
                 System.Console.WriteLine("Disposing serviceProvider");
             };
-
-            // var serviceProvider = serviceCollection.BuildServiceProvider(true);
-            // var serviceProvider = serviceCollection.BuildServiceProvider(new ServiceProviderOptions{
-            //     ValidateOnBuild = true,
-            //     ValidateScopes = true,
-            // });
         }
 
         private static Task RunScope(ServiceProvider serviceProvider)

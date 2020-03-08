@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiDemo.Api", "DiDemo.Api\Di
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiDemo.Framework", "DiDemo.Framework\DiDemo.Framework.csproj", "{13B4F692-8CAF-4999-97B1-8D88F3736A13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiDemo.ConsoleApp", "DiDemo.Console\DiDemo.ConsoleApp.csproj", "{B8ACE7FD-A52E-43AE-A7AF-99EE28F37832}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiDemo.CaptiveDependenciesDemo.ConsoleApp", "DiDemo.Console\DiDemo.CaptiveDependenciesDemo.ConsoleApp.csproj", "{B8ACE7FD-A52E-43AE-A7AF-99EE28F37832}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiDemo.Common", "DiDemo.Common\DiDemo.Common.csproj", "{FAC8EAA9-ECFF-4DC2-85EA-67DF1ADFB457}"
 EndProject
