@@ -4,19 +4,25 @@ using System.Linq;
 using Castle.DynamicProxy;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace PlayGround.InterceptionServiceCollections
+namespace DiDemo.Framework
 {
-    public class CustomServiceCollection
+    public class CustomContainerBuilder
     {
         private readonly List<Dependency> _dependencies = new List<Dependency>();
-        private readonly Dictionary<Type, Action<ServiceCollection>> _interceptorFuncs = new Dictionary<Type, Action<ServiceCollection>>();
-        public CustomServiceCollection AddInterceptor<TInterceptor>(Func<TInterceptor> interceptorFunc)
+        private readonly Dictionary<Type, Action<IServiceCollection>> _interceptorFuncs = new Dictionary<Type, Action<IServiceCollection>>();
+        private readonly IServiceCollection _serviceCollection = new ServiceCollection();
+
+        public CustomContainerBuilder(IServiceCollection serviceCollection)
+        {
+            _serviceCollection = serviceCollection;
+        }
+
+        public CustomContainerBuilder AddInterceptor<TInterceptor>(Func<TInterceptor> interceptorFunc)
         where TInterceptor : class, IInterceptor
         {
-            var interceptor = interceptorFunc.Invoke();
-            _interceptorFuncs.Add(typeof(TInterceptor), sp =>
-                sp.AddSingleton<TInterceptor>(
-                    new Func<IServiceProvider, TInterceptor>((sp) => interceptor))
+            _interceptorFuncs.Add(typeof(TInterceptor), serviceCollection =>
+                serviceCollection.AddSingleton<TInterceptor>(
+                    new Func<IServiceProvider, TInterceptor>(serviceProvider => interceptorFunc.Invoke()))
                 );
             return this;
         }
@@ -32,18 +38,17 @@ namespace PlayGround.InterceptionServiceCollections
 
         public ServiceProvider BuildServiceProvider()
         {
-            var innerServiceCollection = new ServiceCollection();
-            AddInterceptors(innerServiceCollection);
+            AddInterceptors(_serviceCollection);
             foreach (var dependency in _dependencies)
             {
                 var createFunc = dependency.CreateFunc();
-                createFunc.Invoke(innerServiceCollection);
+                createFunc.Invoke(_serviceCollection);
             }
 
-            return innerServiceCollection.BuildServiceProvider();
+            return _serviceCollection.BuildServiceProvider();
         }
 
-        private void AddInterceptors(ServiceCollection serviceCollection)
+        private void AddInterceptors(IServiceCollection serviceCollection)
         {
             foreach (var interceptorFunc in _interceptorFuncs)
             {
@@ -62,7 +67,7 @@ namespace PlayGround.InterceptionServiceCollections
         {
         }
 
-        public override Func<ServiceCollection, ServiceCollection> CreateFunc()
+        public override Func<IServiceCollection, IServiceCollection> CreateFunc()
         {
             if (_interceptorTypes.Any())
             {
@@ -73,7 +78,7 @@ namespace PlayGround.InterceptionServiceCollections
 
         }
 
-        public Func<ServiceCollection, ServiceCollection> InnerCreateInterceptedFunc()
+        public Func<IServiceCollection, IServiceCollection> InnerCreateInterceptedFunc()
         {
             var func = new Func<IServiceProvider, TService>(
                 sp =>
@@ -84,7 +89,7 @@ namespace PlayGround.InterceptionServiceCollections
                     return intercepted as TService;
                 }
             );
-            return new Func<ServiceCollection, ServiceCollection>(
+            return new Func<IServiceCollection, IServiceCollection>(
                 sc =>
                 {
                     switch (Scope)
@@ -108,9 +113,9 @@ namespace PlayGround.InterceptionServiceCollections
                 }
             );
         }
-        public Func<ServiceCollection, ServiceCollection> InnerCreateFunc()
+        public Func<IServiceCollection, IServiceCollection> InnerCreateFunc()
         {
-            return new Func<ServiceCollection, ServiceCollection>(
+            return new Func<IServiceCollection, IServiceCollection>(
                 sc =>
                 {
                     switch (Scope)
@@ -146,7 +151,7 @@ namespace PlayGround.InterceptionServiceCollections
 
         }
         public Scope Scope { get; }
-        public abstract Func<ServiceCollection, ServiceCollection> CreateFunc();
+        public abstract Func<IServiceCollection, IServiceCollection> CreateFunc();
         public abstract Dependency WithInterceptor<TInterceptor>() where TInterceptor : class, IInterceptor;
     }
 

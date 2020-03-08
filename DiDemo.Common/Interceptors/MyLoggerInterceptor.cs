@@ -2,35 +2,23 @@ using System;
 using System.IO;
 using System.Linq;
 using Castle.DynamicProxy;
-namespace PlayGround.Interception
+
+namespace DiDemo.Common.Interceptors
 {
-    public class InterceptionDemo
-    {
-        public static void Run()
-        {
-            ICalculator calculator = new Calculator();
-            var proxy = new ProxyGenerator().CreateInterfaceProxyWithTarget(calculator, new MyLogger(Console.Out));
-
-            proxy.Divide(5, 5);
-            proxy.Divide(5, 0);
-        }
-    }
-
-    public class Calculator : ICalculator
-    {
-        public double Divide(int x, int y)
-        {
-            return x / y;
-        }
-    }
-
-    public class MyLogger : IInterceptor
+    public class MyLoggerInterceptor : IInterceptor, IDisposable
     {
         private readonly TextWriter _output;
-        public MyLogger(TextWriter output)
+        public MyLoggerInterceptor(TextWriter output)
         {
             _output = output;
         }
+
+        public void Dispose()
+        {
+            _output.WriteLine($"Disposing {GetType().Name}");
+            _output.Dispose();
+        }
+
         public void Intercept(IInvocation invocation)
         {
             try
@@ -50,11 +38,5 @@ namespace PlayGround.Interception
             }
         }
     }
-
-    
-
-    public interface ICalculator
-    {
-        double Divide(int x, int y);
-    }
 }
+
