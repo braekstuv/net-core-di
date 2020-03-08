@@ -1,6 +1,8 @@
 using System;
+using DiDemo.Common.Interceptors;
 using DiDemo.Common.Services;
 using DiDemo.Common.Services.DemoDependencies;
+using DiDemo.Framework;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,14 +25,21 @@ namespace DiDemo.Api
         {
             services.AddControllers();
 
-            InstallServices(services);
+            // InstallServices(services);
             //InstallWronglyWiredServices(services);
             //InstallNonDisposingServices(services);
-
+            InstallUnInterceptedServices(services);
+            
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "DI Demo", Version = "v1" });
             });
+        }
+
+        private void InstallUnInterceptedServices(IServiceCollection services)
+        {
+            services.AddScoped<MyCoolService>()
+            .AddScoped<MyOtherCoolService>();
         }
 
         private void InstallNonDisposingServices(IServiceCollection services)
@@ -91,6 +100,18 @@ namespace DiDemo.Api
             {
                 endpoints.MapControllers();
             });
+        }
+
+        // This is the default if you don't have an environment specific method.
+        public void ConfigureContainer(CustomContainerBuilder builder)
+        {
+            builder.AddInterceptor<MyLoggerInterceptor>(() => new MyLoggerInterceptor());
+            builder.AddDependency<ISingletonDependency, SingletonDependency>(Scope.Singleton)
+                .WithInterceptor<MyLoggerInterceptor>();
+            builder.AddDependency<IScopedDependency, ScopedDependency>(Scope.Scoped)
+                .WithInterceptor<MyLoggerInterceptor>();
+            builder.AddDependency<ITransientDependency, TransientDependency>(Scope.Transient)
+                .WithInterceptor<MyLoggerInterceptor>();
         }
     }
 }

@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DiDemo.Common\DiDemo.Common.csproj" />
+    <ProjectReference Include="..\DiDemo.Framework\DiDemo.Framework.csproj" />
   </ItemGroup>
 
 

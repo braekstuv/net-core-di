@@ -6,15 +6,15 @@ namespace DiDemo.Common.Services
     public class MyCoolService
     {
         private readonly MyOtherCoolService _myOtherCoolService;
-        private readonly SingletonDependency _singleton;
-        private readonly TransientDependency _transient;
-        private readonly ScopedDependency _scoped;
+        private readonly ISingletonDependency _singleton;
+        private readonly ITransientDependency _transient;
+        private readonly IScopedDependency _scoped;
 
         public MyCoolService(
             MyOtherCoolService myOtherCoolService,
-            SingletonDependency singleton,
-            TransientDependency transient,
-            ScopedDependency scoped)
+            ISingletonDependency singleton,
+            ITransientDependency transient,
+            IScopedDependency scoped)
         {
             _myOtherCoolService = myOtherCoolService;
             _singleton = singleton;
@@ -34,14 +34,14 @@ namespace DiDemo.Common.Services
 
     public class MyOtherCoolService
     {
-        private readonly SingletonDependency _singleton;
-        private readonly TransientDependency _transient;
-        private readonly ScopedDependency _scoped;
+        private readonly ISingletonDependency _singleton;
+        private readonly ITransientDependency _transient;
+        private readonly IScopedDependency _scoped;
 
         public MyOtherCoolService(
-            SingletonDependency singleton,
-            TransientDependency transient,
-            ScopedDependency scoped)
+            ISingletonDependency singleton,
+            ITransientDependency transient,
+            IScopedDependency scoped)
         {
             _singleton = singleton;
             _transient = transient;
