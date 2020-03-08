@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiDemo.ConsoleApp", "DiDemo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiDemo.Common", "DiDemo.Common\DiDemo.Common.csproj", "{FAC8EAA9-ECFF-4DC2-85EA-67DF1ADFB457}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiDemo.InterceptionDemo.ConsoleApp", "DiDemo.InterceptionDemo.ConsoleApp\DiDemo.InterceptionDemo.ConsoleApp.csproj", "{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,5 +88,17 @@ Global
 		{FAC8EAA9-ECFF-4DC2-85EA-67DF1ADFB457}.Release|x64.Build.0 = Release|Any CPU
 		{FAC8EAA9-ECFF-4DC2-85EA-67DF1ADFB457}.Release|x86.ActiveCfg = Release|Any CPU
 		{FAC8EAA9-ECFF-4DC2-85EA-67DF1ADFB457}.Release|x86.Build.0 = Release|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Debug|x64.Build.0 = Debug|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Debug|x86.Build.0 = Debug|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Release|x64.ActiveCfg = Release|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Release|x64.Build.0 = Release|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Release|x86.ActiveCfg = Release|Any CPU
+		{A8E8E049-C82D-4B97-9462-BB2B259BE3F0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

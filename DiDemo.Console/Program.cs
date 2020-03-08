@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DiDemo.Common.Services;
 using DiDemo.Common.Services.DemoDependencies;
@@ -12,8 +12,14 @@ namespace DiDemo.ConsoleApp
         static async Task Main(string[] args)
         {
             var serviceCollection = new ServiceCollection();
+            
+            //Underlying dependencies will not be disposed.
             serviceCollection.AddSingleton<MyCoolService>()
             .AddSingleton<MyOtherCoolService>();
+
+            //Underlying dependencies will be disposed.
+            // serviceCollection.AddScoped<MyCoolService>()
+            // .AddScoped<MyOtherCoolService>();
 
             serviceCollection.AddSingleton<SingletonDependency>()
             .AddScoped<ScopedDependency>()
@@ -21,11 +27,15 @@ namespace DiDemo.ConsoleApp
 
             using (var serviceProvider = serviceCollection.BuildServiceProvider())
             {
+                var task1 = RunScope(serviceProvider);
+                Thread.Sleep(10);
+                var task2 = RunScope(serviceProvider);
                 var tasks = new[]{
-                    RunScope(serviceProvider),
-                    RunScope(serviceProvider)
+                    task1,
+                    task2
                 };
                 await Task.WhenAll(tasks);
+                System.Console.WriteLine("Disposing serviceProvider");
             };
 
             // var serviceProvider = serviceCollection.BuildServiceProvider(true);
@@ -41,6 +51,7 @@ namespace DiDemo.ConsoleApp
             {
                 var myCoolService = scope.ServiceProvider.GetService<MyCoolService>();
                 Console.WriteLine(string.Join('\n', myCoolService.GetDescriptions()));
+                System.Console.WriteLine("Disposing scope");
             }
             return Task.CompletedTask;
         }
