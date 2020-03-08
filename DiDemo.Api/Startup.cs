@@ -105,7 +105,7 @@ namespace DiDemo.Api
         // This is the default if you don't have an environment specific method.
         public void ConfigureContainer(CustomContainerBuilder builder)
         {
-            builder.AddInterceptor<MyLoggerInterceptor>(() => new MyLoggerInterceptor());
+            builder.AddInterceptor<MyLoggerInterceptor>(() => new MyLoggerInterceptor(Console.Out));
             builder.AddDependency<ISingletonDependency, SingletonDependency>(Scope.Singleton)
                 .WithInterceptor<MyLoggerInterceptor>();
             builder.AddDependency<IScopedDependency, ScopedDependency>(Scope.Scoped)

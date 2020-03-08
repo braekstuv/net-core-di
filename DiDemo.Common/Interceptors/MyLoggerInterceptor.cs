@@ -8,10 +8,6 @@ namespace DiDemo.Common.Interceptors
     public class MyLoggerInterceptor : IInterceptor, IDisposable
     {
         private readonly TextWriter _output;
-        public MyLoggerInterceptor()
-        {
-           _output = Console.Out;
-        }
         public MyLoggerInterceptor(TextWriter output)
         {
             _output = output;
