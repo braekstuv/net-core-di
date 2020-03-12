@@ -9,8 +9,8 @@ namespace DiDemo.InterceptionDemo.ConsoleApp
         static void Main(string[] args)
         {
             ICalculator calculator = new Calculator();
-            calculator.Divide(5,5);
-            calculator.Divide(5,0);
+            calculator.Divide(5, 5);
+            calculator.Divide(5, 0);
 
             // var proxy = new ProxyGenerator()
             //    .CreateInterfaceProxyWithTarget(calculator, new MyLoggerInterceptor(Console.Out));
@@ -19,17 +19,17 @@ namespace DiDemo.InterceptionDemo.ConsoleApp
             // proxy.Divide(5, 0);
         }
 
-
-        public class Calculator : ICalculator
+    }
+    
+    public class Calculator : ICalculator
+    {
+        public double Divide(int x, int y)
         {
-            public double Divide(int x, int y)
-            {
-                return x / y;
-            }
+            return x / y;
         }
-        public interface ICalculator
-        {
-            double Divide(int x, int y);
-        }
+    }
+    public interface ICalculator
+    {
+        double Divide(int x, int y);
     }
 }
