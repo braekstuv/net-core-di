@@ -13,17 +13,17 @@ namespace DiDemo.CaptiveDependenciesDemo.ConsoleApp
         {
             var serviceCollection = new ServiceCollection();
             
-            //Underlying dependencies will not be disposed.
-            serviceCollection.AddSingleton<MyCoolService>()
-            .AddSingleton<MyOtherCoolService>();
+            //Underlying dependencies will be disposed when the scope is disposed.
+            serviceCollection.AddScoped<MyCoolService>()
+             .AddScoped<MyOtherCoolService>();
 
-            //Underlying dependencies will be disposed.
-            // serviceCollection.AddScoped<MyCoolService>()
-            //  .AddScoped<MyOtherCoolService>();
+            //Underlying dependencies will be disposed when the serviceprovider is disposed.
+            // serviceCollection.AddSingleton<MyCoolService>()
+            // .AddSingleton<MyOtherCoolService>();
 
-            serviceCollection.AddSingleton<SingletonDependency>()
-            //.AddScoped<ScopedDependency>()
-            .AddTransient<TransientDependency>();
+            serviceCollection.AddSingleton<ISingletonDependency, SingletonDependency>()
+            .AddScoped<IScopedDependency, ScopedDependency>()
+            .AddTransient<ITransientDependency, TransientDependency>();
 
             //Line below will not throw an error
             using (var serviceProvider = serviceCollection.BuildServiceProvider())
