@@ -1,5 +1,3 @@
-using System;
-using DiDemo.Common.Interceptors;
 using DiDemo.Common.Services;
 using DiDemo.Common.Services.DemoDependencies;
 using DiDemo.Framework;
@@ -28,7 +26,7 @@ namespace DiDemo.Api
             // InstallServices(services);
             //InstallWronglyWiredServices(services);
             //InstallNonDisposingServices(services);
-            InstallUnInterceptedServices(services);
+            InstallServices(services);
             
             services.AddSwaggerGen(c =>
             {
@@ -36,7 +34,7 @@ namespace DiDemo.Api
             });
         }
 
-        private void InstallUnInterceptedServices(IServiceCollection services)
+        private void InstallServices(IServiceCollection services)
         {
             services.AddScoped<MyCoolService>()
             .AddScoped<MyOtherCoolService>();
@@ -58,16 +56,6 @@ namespace DiDemo.Api
             //This will generate an exception, as we're wiring Singleton dependencies with Scoped dependencies.
             services.AddSingleton<MyCoolService>()
             .AddSingleton<MyOtherCoolService>();
-
-            services.AddSingleton<SingletonDependency>()
-            .AddScoped<ScopedDependency>()
-            .AddTransient<TransientDependency>();
-        }
-
-        private void InstallServices(IServiceCollection services)
-        {
-            services.AddScoped<MyCoolService>()
-            .AddScoped<MyOtherCoolService>();
 
             services.AddSingleton<SingletonDependency>()
             .AddScoped<ScopedDependency>()
@@ -105,13 +93,9 @@ namespace DiDemo.Api
         // This is the default if you don't have an environment specific method.
         public void ConfigureContainer(CustomContainerBuilder builder)
         {
-            builder.AddInterceptor<MyLoggerInterceptor>(() => new MyLoggerInterceptor(Console.Out));
-            builder.AddDependency<ISingletonDependency, SingletonDependency>(Scope.Singleton)
-                .WithInterceptor<MyLoggerInterceptor>();
-            builder.AddDependency<IScopedDependency, ScopedDependency>(Scope.Scoped)
-                .WithInterceptor<MyLoggerInterceptor>();
-            builder.AddDependency<ITransientDependency, TransientDependency>(Scope.Transient)
-                .WithInterceptor<MyLoggerInterceptor>();
+            builder.AddDependency<ISingletonDependency, SingletonDependency>(Scope.Singleton);
+            builder.AddDependency<IScopedDependency, ScopedDependency>(Scope.Scoped);
+            builder.AddDependency<ITransientDependency, TransientDependency>(Scope.Transient);
         }
     }
 }
