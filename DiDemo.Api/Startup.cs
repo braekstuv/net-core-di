@@ -1,3 +1,4 @@
+using DiDemo.Common.Interceptors;
 using DiDemo.Common.Services;
 using DiDemo.Common.Services.DemoDependencies;
 using DiDemo.Framework;
@@ -80,6 +81,16 @@ namespace DiDemo.Api {
                 endpoints.MapControllers();
             });
         }
+
+        // public void ConfigureContainer(CustomContainerBuilder builder) {
+        //     builder.AddInterceptor<MyLoggerInterceptor>(() => new MyLoggerInterceptor(Console.Out));
+        //     builder.AddDependency<ISingletonDependency, SingletonDependency>(Scope.Singleton)
+        //         .WithInterceptor<MyLoggerInterceptor>();
+        //     builder.AddDependency<IScopedDependency, ScopedDependency>(Scope.Scoped)
+        //         .WithInterceptor<MyLoggerInterceptor>();
+        //     builder.AddDependency<ITransientDependency, TransientDependency>(Scope.Transient)
+        //         .WithInterceptor<MyLoggerInterceptor>();
+        // }
 
     }
 }
