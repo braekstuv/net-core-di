@@ -32,9 +32,9 @@ namespace DiDemo.Api {
             services.AddScoped<MyCoolService>()
                 .AddScoped<MyOtherCoolService>();
 
-            services.AddSingleton<ISingletonDependency, SingletonDependency>()
-                .AddScoped<IScopedDependency, ScopedDependency>()
-                .AddTransient<ITransientDependency, TransientDependency>();
+            services.AddSingleton<SingletonDependency>()
+                .AddScoped<ScopedDependency>()
+                .AddTransient<TransientDependency>();
         }
 
         private void InstallNonDisposingServices(IServiceCollection services) {
@@ -42,9 +42,9 @@ namespace DiDemo.Api {
                 .AddScoped<MyOtherCoolService>();
 
             var singleton = new SingletonDependency();
-            services.AddSingleton<ISingletonDependency, SingletonDependency>(sp => singleton)
-                .AddScoped<IScopedDependency, ScopedDependency>()
-                .AddTransient<ITransientDependency, TransientDependency>();
+            services.AddSingleton<SingletonDependency>(singleton)
+                .AddScoped<ScopedDependency>()
+                .AddTransient<TransientDependency>();
         }
 
         private void InstallWronglyWiredServices(IServiceCollection services) {
@@ -52,9 +52,9 @@ namespace DiDemo.Api {
             services.AddSingleton<MyCoolService>()
                 .AddSingleton<MyOtherCoolService>();
 
-            services.AddSingleton<ISingletonDependency, SingletonDependency>()
-                .AddScoped<IScopedDependency, ScopedDependency>()
-                .AddTransient<ITransientDependency, TransientDependency>();
+            services.AddSingleton<SingletonDependency>()
+                .AddScoped<ScopedDependency>()
+                .AddTransient<TransientDependency>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
