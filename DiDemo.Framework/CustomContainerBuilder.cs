@@ -4,96 +4,80 @@ using System.Linq;
 using Castle.DynamicProxy;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DiDemo.Framework
-{
-    public class CustomContainerBuilder
-    {
-        private readonly List<Dependency> _dependencies = new List<Dependency>();
-        private readonly Dictionary<Type, Action<IServiceCollection>> _interceptorFuncs = new Dictionary<Type, Action<IServiceCollection>>();
+namespace DiDemo.Framework {
+    public class CustomContainerBuilder {
+        private readonly List<DependencyRegistration> _dependencies = new List<DependencyRegistration>();
+        private readonly List<InterceptorRegistration> _interceptors = new List<InterceptorRegistration>();
         private readonly IServiceCollection _serviceCollection = new ServiceCollection();
 
-        public CustomContainerBuilder(IServiceCollection serviceCollection)
-        {
+        public CustomContainerBuilder(IServiceCollection serviceCollection) {
             _serviceCollection = serviceCollection;
         }
 
-        public CustomContainerBuilder AddInterceptor<TInterceptor>(Func<TInterceptor> interceptorFunc)
-        where TInterceptor : class, IInterceptor
-        {
-            _interceptorFuncs.Add(typeof(TInterceptor), serviceCollection =>
-                serviceCollection.AddSingleton<TInterceptor>(
-                    new Func<IServiceProvider, TInterceptor>(serviceProvider => interceptorFunc.Invoke()))
-                );
+        public CustomContainerBuilder AddInterceptor<TInterceptor>(Func<IServiceProvider, TInterceptor> interceptorFunc)
+        where TInterceptor : class, IInterceptor {
+            _interceptors.Add(
+                new InterceptorRegistration<TInterceptor>(
+                    interceptorFunc
+                )
+            );
             return this;
         }
 
-        public Dependency AddDependency<TService, TImplementation>(Scope scope = Scope.Scoped)
-            where TService : class
-            where TImplementation : class, TService
-        {
-            var dependency = new Dependency<TService, TImplementation>(scope);
+        public DependencyRegistration AddDependency<TService, TImplementation>(Scope scope = Scope.Scoped)
+        where TService : class
+        where TImplementation : class, TService {
+            var dependency = new DependencyRegistration<TService, TImplementation>(scope);
             _dependencies.Add(dependency);
             return dependency;
         }
 
-        public ServiceProvider BuildServiceProvider()
-        {
+        public ServiceProvider BuildServiceProvider() {
             AddInterceptors(_serviceCollection);
-            foreach (var dependency in _dependencies)
-            {
-                var createFunc = dependency.CreateFunc();
-                createFunc.Invoke(_serviceCollection);
+            foreach (var dependency in _dependencies) {
+                var wiring = dependency.CreateWiring();
+                wiring.Invoke(_serviceCollection);
             }
 
             return _serviceCollection.BuildServiceProvider();
         }
 
-        private void AddInterceptors(IServiceCollection serviceCollection)
-        {
-            foreach (var interceptorFunc in _interceptorFuncs)
-            {
-                interceptorFunc.Value.Invoke(serviceCollection);
+        private void AddInterceptors(IServiceCollection serviceCollection) {
+            foreach (var interceptor in _interceptors) {
+                var wiring = interceptor.CreateWiring();
+                wiring.Invoke(_serviceCollection);
             }
         }
     }
 
-    public class Dependency<TService, TImplementation> : Dependency
+    public class DependencyRegistration<TService, TImplementation> : DependencyRegistration
     where TService : class
-    where TImplementation : class, TService
-    {
+    where TImplementation : class, TService {
         private readonly HashSet<Type> _interceptorTypes = new HashSet<Type>();
         public IEnumerable<Type> InterceptorTypes => _interceptorTypes;
-        public Dependency(Scope scope) : base(scope)
-        {
-        }
+        public DependencyRegistration(Scope scope) : base(scope) { }
 
-        public override Func<IServiceCollection, IServiceCollection> CreateFunc()
-        {
-            if (_interceptorTypes.Any())
-            {
-                return InnerCreateInterceptedFunc();
+        public override Action<IServiceCollection> CreateWiring() {
+            if (_interceptorTypes.Any()) {
+                return InnerCreateInterceptedWiring();
             }
 
-            return InnerCreateFunc();
+            return InnerCreateWiring();
 
         }
 
-        public Func<IServiceCollection, IServiceCollection> InnerCreateInterceptedFunc()
-        {
+        public Action<IServiceCollection> InnerCreateInterceptedWiring() {
             var func = new Func<IServiceProvider, TService>(
-                sp =>
-                {
-                    var implementation = sp.GetService<TImplementation>();
-                    var interceptors = _interceptorTypes.Select(it => sp.GetService(it) as IInterceptor).ToArray();
-                    var intercepted = new ProxyGenerator().CreateInterfaceProxyWithTarget(typeof(TService), implementation, interceptors);
-                    return intercepted as TService;
-                }
-            );
-            return new Func<IServiceCollection, IServiceCollection>(
-                sc =>
-                {
-                    switch (Scope)
-                    {
+                    sp => {
+                        var implementation = sp.GetService<TImplementation>();
+                        var interceptors = _interceptorTypes.Select(it => sp.GetService(it)as IInterceptor).ToArray();
+                        var intercepted = new ProxyGenerator().CreateInterfaceProxyWithTarget(typeof(TService), implementation, interceptors);
+                        return intercepted as TService;
+                    }
+                );
+            return new Action<IServiceCollection>(
+                sc => {
+                    switch (Scope) {
                         case Scope.Scoped:
                             sc.AddScoped<TImplementation>();
                             sc.AddScoped<TService>(func);
@@ -109,17 +93,13 @@ namespace DiDemo.Framework
                         default:
                             throw new ArgumentException($"Scope {Scope} not known.");
                     }
-                    return sc;
                 }
             );
         }
-        public Func<IServiceCollection, IServiceCollection> InnerCreateFunc()
-        {
-            return new Func<IServiceCollection, IServiceCollection>(
-                sc =>
-                {
-                    switch (Scope)
-                    {
+        public Action<IServiceCollection> InnerCreateWiring() {
+            return new Action<IServiceCollection>(
+                sc => {
+                    switch (Scope) {
                         case Scope.Scoped:
                             sc.AddScoped<TService, TImplementation>();
                             break;
@@ -132,31 +112,46 @@ namespace DiDemo.Framework
                         default:
                             throw new ArgumentException($"Scope {Scope} not known.");
                     }
-                    return sc;
                 }
             );
         }
 
-        public override Dependency WithInterceptor<TInterceptor>()
-        {
+        public override DependencyRegistration WithInterceptor<TInterceptor>() {
             _interceptorTypes.Add(typeof(TInterceptor));
             return this;
         }
     }
-    public abstract class Dependency
-    {
-        public Dependency(Scope scope)
-        {
+    public abstract class DependencyRegistration : ICreateWiring {
+        public DependencyRegistration(Scope scope) {
             this.Scope = scope;
 
         }
         public Scope Scope { get; }
-        public abstract Func<IServiceCollection, IServiceCollection> CreateFunc();
-        public abstract Dependency WithInterceptor<TInterceptor>() where TInterceptor : class, IInterceptor;
+        public abstract Action<IServiceCollection> CreateWiring();
+        public abstract DependencyRegistration WithInterceptor<TInterceptor>()where TInterceptor : class, IInterceptor;
     }
 
-    public enum Scope
-    {
+    public class InterceptorRegistration<TInterceptor> : InterceptorRegistration
+    where TInterceptor : class, IInterceptor {
+        private readonly Func<IServiceProvider, TInterceptor> _createInterceptorFunc;
+
+        public InterceptorRegistration(Func<IServiceProvider, TInterceptor> createInterceptorFunc) {
+            _createInterceptorFunc = createInterceptorFunc;
+        }
+
+        public override Action<IServiceCollection> CreateWiring() {
+            return new Action<IServiceCollection>(sc => sc.AddSingleton<TInterceptor>(_createInterceptorFunc));
+        }
+    }
+    public abstract class InterceptorRegistration : ICreateWiring {
+        public abstract Action<IServiceCollection> CreateWiring();
+    }
+
+    public interface ICreateWiring {
+        Action<IServiceCollection> CreateWiring();
+    }
+
+    public enum Scope {
         Singleton,
         Scoped,
         Transient
